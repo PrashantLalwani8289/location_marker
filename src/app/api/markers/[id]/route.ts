@@ -1,21 +1,15 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { db } from '@/app/lib/db';
 
-interface RouteParams {
-  params: {
-    id: string;
-  };
-}
-
 export async function PATCH(
-  request: Request,
-  context: RouteParams
+  request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   console.log('PATCH /api/markers/[id] - Updating marker position');
   try {
     const body = await request.json();
     const { lat, lng } = body;
-    const { id } = context.params;
+    const { id } = params;
 
     if (typeof lat !== 'number' || typeof lng !== 'number') {
       const validationError = {
@@ -51,12 +45,12 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  request: Request,
-  context: RouteParams
+  request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   console.log('DELETE /api/markers/[id] - Deleting marker');
   try {
-    const { id } = context.params;
+    const { id } = params;
     
     console.log('DELETE /api/markers/[id] - Attempting to delete marker:', id);
     await db.deleteMarker(id);
