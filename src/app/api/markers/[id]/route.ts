@@ -1,15 +1,15 @@
-import { NextResponse, NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/app/lib/db';
 
 export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   console.log('PATCH /api/markers/[id] - Updating marker position');
   try {
-    const body = await request.json();
+    const body = await req.json();
     const { lat, lng } = body;
-    const { id } = params;
+    const { id } = await params;
 
     if (typeof lat !== 'number' || typeof lng !== 'number') {
       const validationError = {
@@ -25,9 +25,9 @@ export async function PATCH(
       );
     }
 
-    console.log('PATCH /api/markers/[id] - Validated data:', { id, lat, lng });
+    console.log('Validated data:', { id, lat, lng });
     await db.updateMarkerPosition(id, lat, lng);
-    console.log('PATCH /api/markers/[id] - Successfully updated marker position');
+    console.log('Successfully updated marker position');
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
     const errorDetails = {
@@ -45,17 +45,15 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   console.log('DELETE /api/markers/[id] - Deleting marker');
   try {
-    const { id } = params;
-    
-    console.log('DELETE /api/markers/[id] - Attempting to delete marker:', id);
+    const { id } = await params;
+    console.log('Attempting to delete marker:', id);
     await db.deleteMarker(id);
-    console.log('DELETE /api/markers/[id] - Successfully deleted marker');
-    
+    console.log('Successfully deleted marker');
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
     const errorDetails = {
