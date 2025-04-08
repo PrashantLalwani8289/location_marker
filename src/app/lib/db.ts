@@ -10,6 +10,7 @@ interface Marker {
   name: string;
   lat: number;
   lng: number;
+  type?: string; // Emoji type for the marker
 }
 
 let client: MongoClient | null = null;
@@ -52,11 +53,11 @@ export const db = {
     }
   },
 
-  async addMarker(lat: number, lng: number, name: string): Promise<Marker> {
+  async addMarker(lat: number, lng: number, name: string, type?: string): Promise<Marker> {
     try {
       console.log('Adding new marker:', { lat, lng, name });
       const { db } = await connectToDatabase();
-      const marker: Marker = { lat, lng, name };
+      const marker: Marker = { lat, lng, name, type };
       const result = await db.collection<Marker>('markers').insertOne(marker);
       console.log('Successfully added marker with ID:', result.insertedId.toString());
       return { ...marker, _id: result.insertedId };

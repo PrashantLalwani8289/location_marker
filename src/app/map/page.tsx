@@ -14,6 +14,7 @@ interface Marker {
   name: string;
   lat: number;
   lng: number;
+  type?: string;
 }
 
 interface ApiError {
@@ -62,7 +63,7 @@ export default function MapPage() {
     }
   };
 
-  const handleMapClick = async (lat: number, lng: number, name: string) => {
+  const handleMapClick = async (lat: number, lng: number, name: string, type: string) => {
     try {
       console.log('Adding new marker at coordinates:', { lat, lng, name });
       const response = await fetch("/api/markers", {
@@ -70,7 +71,7 @@ export default function MapPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ lat, lng, name }),
+        body: JSON.stringify({ lat, lng, name, type }),
       });
       
       if (!response.ok) {

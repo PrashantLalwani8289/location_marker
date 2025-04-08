@@ -26,9 +26,15 @@ export async function POST(request: Request) {
   console.log('POST /api/markers - Adding new marker');
   try {
     const body = await request.json();
-    const { lat, lng, name } = body;
+    const { lat, lng, name, type } = body;
 
-    if (typeof lat !== 'number' || typeof lng !== 'number' || typeof name !== 'string' || !name.trim()) {
+    if (
+      typeof lat !== 'number' || 
+      typeof lng !== 'number' || 
+      typeof name !== 'string' || 
+      !name.trim() ||
+      (type && typeof type !== 'string')
+    ) {
       const validationError = {
         endpoint: 'POST /api/markers',
         message: 'Invalid marker data',
@@ -42,8 +48,8 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log('POST /api/markers - Validated data:', { lat, lng, name });
-    const newMarker = await db.addMarker(lat, lng, name.trim());
+    console.log('POST /api/markers - Validated data:', { lat, lng, name, type });
+    const newMarker = await db.addMarker(lat, lng, name.trim(), type);
     console.log('POST /api/markers - Successfully added marker:', newMarker);
     return NextResponse.json(newMarker);
   } catch (error: unknown) {
