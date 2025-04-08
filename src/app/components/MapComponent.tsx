@@ -6,6 +6,7 @@ import L from "leaflet";
 import { useEffect, useState } from "react";
 import { ObjectId } from "mongodb";
 import Modal from "./Modal";
+import dynamic from 'next/dynamic';
 
 // Define available marker types
 const MARKER_TYPES = {
@@ -37,6 +38,7 @@ interface MapComponentProps {
 
 // Create marker icons for different types
 const createMarkerIcon = (emoji: string) => {
+  if (typeof window === 'undefined') return null;
   return new L.DivIcon({
     html: `<div class="marker-icon">${emoji}</div>`,
     className: '',
@@ -67,13 +69,14 @@ if (typeof document !== 'undefined') {
 }
 
 // Create icons for all marker types
-const markerIcons = Object.values(MARKER_TYPES).reduce((acc, { emoji }) => {
-  acc[emoji] = createMarkerIcon(emoji);
+const markerIcons = typeof window === 'undefined' ? {} : Object.values(MARKER_TYPES).reduce((acc, { emoji }) => {
+  const icon = createMarkerIcon(emoji);
+  if (icon) acc[emoji] = icon;
   return acc;
 }, {} as { [key: string]: L.DivIcon });
 
 // Create a custom heart icon for user location
-const heartIcon = new L.DivIcon({
+const heartIcon = typeof window === 'undefined' ? null : new L.DivIcon({
   html: '<div class="heart-marker">❤️</div>',
   className: '',
   iconSize: [40, 40],
@@ -148,7 +151,7 @@ function LocationMarker() {
   }, [map, position]);
 
   return position === null ? null : (
-    <Marker position={position} icon={heartIcon} zIndexOffset={1000}>
+    <Marker position={position} icon={heartIcon || undefined} zIndexOffset={1000}>
       <Popup closeButton={false} autoClose={false} closeOnClick={false}>
         <strong>❤️ You are here my Love</strong>
       </Popup>
@@ -197,7 +200,14 @@ function MapEvents({ onMapClick }: { onMapClick: (lat: number, lng: number, name
   );
 }
 
-export default function MapComponent({ markers, onMapClick, onMarkerDragEnd, onMarkerDelete }: MapComponentProps) {
+const DynamicMapComponent = dynamic(() => Promise.resolve(MapComponent), {
+  ssr: false,
+  loading: () => <div className="h-full w-full flex items-center justify-center">Loading map...</div>
+});
+
+export default DynamicMapComponent;
+
+function MapComponent({ markers, onMapClick, onMarkerDragEnd, onMarkerDelete }: MapComponentProps) {
   const [center, setCenter] = useState({ lat: 40.7128, lng: -74.0060 }); // Default center
   const [loading, setLoading] = useState(true);
 
@@ -248,9 +258,10 @@ export default function MapComponent({ markers, onMapClick, onMarkerDragEnd, onM
       <LocationMarker />
       {/* <LocationButton /> */}
       <MapEvents onMapClick={onMapClick} />
-      {markers.map((marker) => {
+      {Array.isArray(markers) && markers.map((marker) => {
+        if (!marker || !marker.lat || !marker.lng) return null;
         const markerType = marker.type || MARKER_TYPES.DEFAULT.emoji;
-        const icon = markerIcons[markerType];
+        const icon = markerIcons[markerType] || markerIcons[MARKER_TYPES.DEFAULT.emoji];
         
         return (
           <Marker
