@@ -102,24 +102,24 @@ if (typeof document !== 'undefined') {
   document.head.appendChild(style);
 }
 
-function LocationButton() {
+// function LocationButton() {
 
-  const handleClick = () => {
-    window.location.reload();
-  };
+//   const handleClick = () => {
+//     window.location.reload();
+//   };
 
-  return (
-    <button
-      onClick={handleClick}
-      className="absolute z-[1000] top-4 right-4 bg-white p-2 rounded-lg shadow-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      title="Go to my location"
-    >
-        <span>📍</span>
-      <span>Reset</span>
-      <span>View</span>
-    </button>
-  );
-}
+//   return (
+//     <button
+//       onClick={handleClick}
+//       className="absolute z-[1000] top-4 right-4 bg-white p-2 rounded-lg shadow-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+//       title="Go to my location"
+//     >
+//         <span>📍</span>
+//       <span>Reset</span>
+//       <span>View</span>
+//     </button>
+//   );
+// }
 
 function LocationMarker() {
   const [position, setPosition] = useState<L.LatLng | null>(null);
@@ -246,7 +246,7 @@ export default function MapComponent({ markers, onMapClick, onMarkerDragEnd, onM
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <LocationMarker />
-      <LocationButton />
+      {/* <LocationButton /> */}
       <MapEvents onMapClick={onMapClick} />
       {markers.map((marker) => {
         const markerType = marker.type || MARKER_TYPES.DEFAULT.emoji;
