@@ -6,6 +6,8 @@ import L from "leaflet";
 import { useEffect, useState } from "react";
 import { ObjectId } from "mongodb";
 import Modal from "./Modal";
+import ProposalModal from "./ProposalModal";
+import GreetingModal from "./GreetingModal";
 import dynamic from 'next/dynamic';
 
 // Define available marker types
@@ -162,6 +164,8 @@ function LocationMarker() {
 function MapEvents({ onMapClick }: { onMapClick: (lat: number, lng: number, name: string, type: string) => void }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tempCoords, setTempCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [isProposalOpen, setIsProposalOpen] = useState(false);
+  const [isGreetingOpen, setIsGreetingOpen] = useState(false);
 
   const handleClick = (e: L.LeafletMouseEvent) => {
     setTempCoords({ lat: e.latlng.lat, lng: e.latlng.lng });
@@ -180,6 +184,7 @@ function MapEvents({ onMapClick }: { onMapClick: (lat: number, lng: number, name
       }
       setIsModalOpen(false);
       setTempCoords(null);
+      setIsProposalOpen(true);
     }
   };
 
@@ -188,15 +193,35 @@ function MapEvents({ onMapClick }: { onMapClick: (lat: number, lng: number, name
   });
 
   return (
-    <Modal
-      isOpen={isModalOpen}
-      onClose={() => {
-        setIsModalOpen(false);
-        setTempCoords(null);
-      }}
-      onSubmit={handleModalSubmit}
-      title="Add New Marker"
-    />
+    <>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setTempCoords(null);
+        }}
+        onSubmit={handleModalSubmit}
+        title="Add New Marker"
+      />
+      <ProposalModal
+        isOpen={isProposalOpen}
+        onClose={() => setIsProposalOpen(false)}
+        onChoice={() => {
+          setIsProposalOpen(false);
+          setIsGreetingOpen(true);
+        }}
+      />
+      <GreetingModal
+        isOpen={isGreetingOpen}
+        message="Yuhuuuuu!!  I knew it we are destined to be together! We will have sex tonight 💋💋 "
+        onClose={() => {
+          setIsGreetingOpen(false);
+          setIsProposalOpen(false);
+          setIsModalOpen(false);
+          setTempCoords(null);
+        }}
+      />
+    </>
   );
 }
 
